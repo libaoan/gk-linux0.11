@@ -1,2 +1,4 @@
 # gk-linux0.11
-learn os by coding them..
+```Learn os by coding them!```
+
+I'm beginning a new life today.
