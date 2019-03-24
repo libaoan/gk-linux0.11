@@ -1,4 +1,3 @@
-===
 开发及运行环境
 ===
 ## 操作系统环境: 
@@ -9,7 +8,7 @@ ubuntu 18.04 amd64
 	包含linux-0.11源码，bochs虚拟机等
 2. [gcc-3.4-ubuntu.tar.gz](https://github.com/hoverwinter/HIT-OSLab/tree/master/Resources)		
 	编译linux-0.11需要用到的低版本的gcc 
-3. 所有的依赖我已经提交到项目路径下面了， 可以直接clone项目安装运行
+3. 所有的依赖我都已经添加到路径下面了， 在ubuntu18.04系统上可以clone项目直接安装运行
 
 ## 安装
 1. 克隆该仓库
