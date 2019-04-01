@@ -95,8 +95,8 @@ ok_load_setup:
 	xor	bh,bh
 	int	0x10
 	
-	mov	cx,#24
-	mov	bx,#0x0007		! page 0, attribute 7 (normal)
+	mov	cx,#66
+	mov	bx,#0x0002		! page 0, attribute 7 (normal)
 	mov	bp,#msg1
 	mov	ax,#0x1301		! write string, move cursor
 	int	0x10
@@ -242,8 +242,12 @@ sectors:
 	.word 0
 
 msg1:
+        .byte 13,10
+        .ascii "------------------"
 	.byte 13,10
-	.ascii "Loading system ..."
+	.ascii "Loading Gk-Linux ..."
+        .byte 13,10
+        .ascii "------------------"
 	.byte 13,10,13,10
 
 .org 508
