@@ -30,6 +30,22 @@ begbss:
 entry start
 start:
 
+! Print setup info at setup.s
+
+	mov ax, #SETUPSEG
+	mov es, ax
+	
+	mov ah, #0x30
+	mov bh, bh
+	int 0x10
+	
+	mov cx, #51
+	mov bx, #0x0002
+	mov bp, #msg1
+	mov ax, #0x1301
+	int 0x10
+		
+
 ! ok, the read went well so we get current cursor position and save it for
 ! posterity.
 
@@ -102,6 +118,31 @@ no_disk1:
 	rep
 	stosb
 is_disk1:
+
+	mov ax, #INITSEG
+# set stack at 0x9ff00
+	mov ss, ax
+	mov sp, #0xFF00  ! put sp after 0x90020
+	
+	mov ax, #SETUPSEG
+	mov es, ax
+	
+print_cursor:
+	mov ah, #0x30   ! get cursor position
+	xor bh, bh	! set page 0
+	int 0x10
+	
+	mov cx, #48
+	mov bx, #0x0002 
+	mov bp, #cursor
+	mov ax, #0x1301 ! print str and move cursor, AH=0x13 for show str, AL=0x01 for move cursor
+	int 0x10
+	mov ax, #0
+	mov bp, ax
+	call print_hex
+	call println
+	
+	
 
 ! now we want to move to protected mode ...
 
@@ -220,6 +261,45 @@ idt_48:
 gdt_48:
 	.word	0x800		! gdt limit=2048, 256 GDT entries
 	.word	512+gdt,0x9	! gdt base = 0X9xxxx
+
+
+print_hex:
+	mov cx, #0x4
+	mov dx, (bp)
+
+print_digital:
+	rol dx, #0x4
+	mov ax, 0xe0f
+	and al, dl
+	add al, 0x30
+	cmp al, 0x3a
+	jl outp
+	add al, 0x07
+outp:
+	int 0x10
+	loop print_digital
+	ret
+
+
+println:
+	mov ax, #0xe0d
+	int 0x10
+	mov al, #0xa
+	int 0x10
+	ret
+
+msg1:
+	.byte 13,10
+	.ascii "Printed in setup before enter protected mode."
+	.byte 13,10,13,10
+
+cursor:
+	.byte 13,10
+	.ascii "---------------------------"
+	.byte 13,10
+	.ascii "Cursor Position: "
+
+
 	
 .text
 endtext:
