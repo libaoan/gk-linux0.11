@@ -35,7 +35,7 @@ start:
 	mov ax, #SETUPSEG
 	mov es, ax
 	
-	mov ah, #0x30
+	mov ah, #0x03
 	mov bh, bh
 	int 0x10
 	
@@ -128,11 +128,11 @@ is_disk1:
 	mov es, ax
 	
 print_cursor:
-	mov ah, #0x30   ! get cursor position
+	mov ah, #0x03   ! get cursor position
 	xor bh, bh	! set page 0
 	int 0x10
 	
-	mov cx, #48
+	mov cx, #18
 	mov bx, #0x0002 
 	mov bp, #cursor
 	mov ax, #0x1301 ! print str and move cursor, AH=0x13 for show str, AL=0x01 for move cursor
@@ -141,8 +141,62 @@ print_cursor:
 	mov bp, ax
 	call print_hex
 	call println
+
+print_memory:
+	mov ah, #0x03
+	xor bh, bh
+	int 0x10
+	mov cx, #12
+	mov bx, #0x0002
+	mov bp, #memory
+	mov ax, #0x1301
+	int 0x10
+	mov ax, #2
+	mov bp, ax
+	call print_hex
 	
+	mov ah, #0x03
+	xor bh,bh
+	int 0x10
 	
+	mov cx, #2
+	mov bx, #0x0002
+	mov bp, #KB
+	mov ax, #0x1301
+	int 0x10
+	call println
+
+
+print_cy1_hd0:
+	mov ah, #0x03
+	xor bh,bh
+	int 0x10
+	
+	mov cx, #9
+	mov bx, #0x0002
+	mov bp, #cy1_hd0
+	mov ax, #0x1301
+	int 0x10
+	mov ax, #0x0080
+	mov bp, ax
+	call print_hex
+	call println
+
+print_head_hd0:
+	mov ah, #0x03
+	xor bh, bh
+	int 0x10
+	
+	mov cx, #10
+	mov bx, #0x0002
+	mov bp, #head_hd0
+	mov ax, #0x1301
+	int 0x10
+	mov ax, #0x0082
+	mov bp, ax
+	call print_hex
+	call println
+
 
 ! now we want to move to protected mode ...
 
@@ -264,11 +318,11 @@ gdt_48:
 
 
 print_hex:
-	mov cx, #0x4
+	mov cx, #4
 	mov dx, (bp)
 
 print_digital:
-	rol dx, #0x4
+	rol dx, #4
 	mov ax, 0xe0f
 	and al, dl
 	add al, 0x30
@@ -295,9 +349,16 @@ msg1:
 
 cursor:
 	.byte 13,10
-	.ascii "---------------------------"
-	.byte 13,10
-	.ascii "Cursor Position: "
+	.ascii "Cursor Position:"
+
+memory:
+	.ascii "Memory Size:"
+cy1_hd0:
+	.ascii "CYLs_HD0:"
+head_hd0:
+	.ascii "HEADs_HD0:"
+KB:
+	.ascii "KB"
 
 
 	
