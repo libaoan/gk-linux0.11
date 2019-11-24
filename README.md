@@ -11,4 +11,5 @@
 该项目的开发和编译环境基于ubuntu 18.04 amd64，参照[DeathKing/hit-oslab](https://github.com/DeathKing/hit-oslab)提供了Ubuntu系统下实验环境的一键配置脚本及其所需的源代码，工具等材料。我在此基础上进行了一些小改动。具体参见[docs/0-environment.md](https://github.com/libaoan/gk-linux0.11/blob/master/docs/0-environment.md)
 
 
-~                                
+## 1. 系统引导
+参见[系统引导](https://github.com/libaoan/gk-linux0.11/blob/master/docs/1-os-booting.md)。                               

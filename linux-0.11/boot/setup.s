@@ -12,12 +12,6 @@
 ! for buffer-blocks.
 !
 
-! NOTE! These had better be the same as in bootsect.s!
-
-INITSEG  = 0x9000	! we move boot here - out of the way
-SYSSEG   = 0x1000	! system loaded at 0x10000 (65536).
-SETUPSEG = 0x9020	! this is the current segment
-
 .globl begtext, begdata, begbss, endtext, enddata, endbss
 .text
 begtext:
@@ -27,21 +21,27 @@ begdata:
 begbss:
 .text
 
-entry start
-start:
+! NOTE! These had better be the same as in bootsect.s!
+INITSEG  = 0x9000       ! we move boot here - out of the way
+SYSSEG   = 0x1000       ! system loaded at 0x10000 (65536).
+SETUPSEG = 0x9020       ! this is the current segment
+
+
+entry _start
+_start:
 
 ! Print setup info at setup.s
 
 	mov ax, #SETUPSEG
 	mov es, ax
 	
-	mov ah, #0x03
-	mov bh, bh
+	mov ah, #0x03  ! read cursor position
+	mov bh, bh     ! page number
 	int 0x10
 	
-	mov cx, #51
-	mov bx, #0x0002
-	mov bp, #msg1
+	mov cx, #25
+	mov bx, #0x0002      ! page 0, attribute 7 (normal) 页号BH=0 属性BL=7正常显示
+	mov bp, #msg_setup   ! ES:BP要显示的字符串地址
 	mov ax, #0x1301
 	int 0x10
 		
@@ -119,11 +119,15 @@ no_disk1:
 	stosb
 is_disk1:
 
+!设置堆栈段寄存器SS，指向0x90000，这里保存了从BIOS读取到的硬件参数
 	mov ax, #INITSEG
+!注意在bootsect.s中已经设置好了堆栈栈寄存器ss和堆栈顶寄存器sp ss=0x90000 sp=0x9ff00
+!但这里以防万一，可以再设置下
 # set stack at 0x9ff00
 	mov ss, ax
 	mov sp, #0xFF00  ! put sp after 0x90020
-	
+
+!设置附加数据段寄存器ES的值指向SETUPSEG，以便可以正常显示字符串数据	
 	mov ax, #SETUPSEG
 	mov es, ax
 	
@@ -132,7 +136,7 @@ print_cursor:
 	xor bh, bh	! set page 0
 	int 0x10
 	
-	mov cx, #18
+	mov cx, #11
 	mov bx, #0x0002 
 	mov bp, #cursor
 	mov ax, #0x1301 ! print str and move cursor, AH=0x13 for show str, AL=0x01 for move cursor
@@ -155,7 +159,8 @@ print_memory:
 	mov bp, ax
 	call print_hex
 	
-	mov ah, #0x03
+	!显示扩展内存最后的单位"KB"
+        mov ah, #0x03
 	xor bh,bh
 	int 0x10
 	
@@ -318,8 +323,8 @@ gdt_48:
 
 
 print_hex:
-	mov cx, #4
-	mov dx, (bp)
+	mov cx, #4    !4个十六进制数字
+	mov dx, (bp)    !将(bp)所指的值放入dx中，如果bp是指向栈顶的话
 
 print_digital:
 	rol dx, #4
@@ -342,14 +347,13 @@ println:
 	int 0x10
 	ret
 
-msg1:
+msg_setup:
 	.byte 13,10
-	.ascii "Printed in setup before enter protected mode."
+	.ascii "Now we are in SETUP"
 	.byte 13,10,13,10
 
 cursor:
-	.byte 13,10
-	.ascii "Cursor Position:"
+	.ascii "Cursor POS:"	!0x90000 2bytes
 
 memory:
 	.ascii "Memory Size:"

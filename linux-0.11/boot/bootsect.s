@@ -74,7 +74,7 @@ load_setup:
 	mov	dx,#0x0000
 	mov	ax,#0x0000		! reset the diskette
 	int	0x13
-	j	load_setup
+	jmp	load_setup
 
 ok_load_setup:
 
